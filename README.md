@@ -1,3 +1,15 @@
+Fork info:
+
+Load model configs from a file: "model_config.json"
+
+Specify a lora to load (experimental):
+"lora": {
+    "path": "path to lora",
+    "name": "pytorch_lora_weights.safetensors" <- can be anything
+}
+
+- - - 
+
 <p align="center">
     <img src="https://github.com/user-attachments/assets/2cc030b4-87e1-40a0-b5bf-1b7d6b62820b" width="300">
 </p>
