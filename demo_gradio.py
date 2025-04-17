@@ -26,6 +26,7 @@ from diffusers_helper.gradio.progress_bar import make_progress_bar_css, make_pro
 from transformers import SiglipImageProcessor, SiglipVisionModel
 from diffusers_helper.clip_vision import hf_clip_vision_encode
 from diffusers_helper.bucket_tools import find_nearest_bucket
+import json
 
 
 parser = argparse.ArgumentParser()
@@ -41,17 +42,100 @@ high_vram = free_mem_gb > 40
 
 print(f'Free VRAM {free_mem_gb} GB')
 print(f'High-VRAM Mode: {high_vram}')
+# Define the default configuration
+default_config = {
+    "text_encoder": {
+        "model_name": "hunyuanvideo-community/HunyuanVideo",
+        "subfolder": "text_encoder",
+        "torch_dtype": "float16"
+    },
+    "text_encoder_2": {
+        "model_name": "hunyuanvideo-community/HunyuanVideo",
+        "subfolder": "text_encoder_2",
+        "torch_dtype": "float16"
+    },
+    "tokenizer": {
+        "model_name": "hunyuanvideo-community/HunyuanVideo",
+        "subfolder": "tokenizer"
+    },
+    "tokenizer_2": {
+        "model_name": "hunyuanvideo-community/HunyuanVideo",
+        "subfolder": "tokenizer_2"
+    },
+    "vae": {
+        "model_name": "hunyuanvideo-community/HunyuanVideo",
+        "subfolder": "vae",
+        "torch_dtype": "float16"
+    },
+    "feature_extractor": {
+        "model_name": "lllyasviel/flux_redux_bfl",
+        "subfolder": "feature_extractor"
+    },
+    "image_encoder": {
+        "model_name": "lllyasviel/flux_redux_bfl",
+        "subfolder": "image_encoder",
+        "torch_dtype": "float16"
+    },
+    "transformer": {
+        "model_name": "lllyasviel/FramePackI2V_HY",
+        "torch_dtype": "bfloat16"
+    }
+}
 
-text_encoder = LlamaModel.from_pretrained("hunyuanvideo-community/HunyuanVideo", subfolder='text_encoder', torch_dtype=torch.float16).cpu()
-text_encoder_2 = CLIPTextModel.from_pretrained("hunyuanvideo-community/HunyuanVideo", subfolder='text_encoder_2', torch_dtype=torch.float16).cpu()
-tokenizer = LlamaTokenizerFast.from_pretrained("hunyuanvideo-community/HunyuanVideo", subfolder='tokenizer')
-tokenizer_2 = CLIPTokenizer.from_pretrained("hunyuanvideo-community/HunyuanVideo", subfolder='tokenizer_2')
-vae = AutoencoderKLHunyuanVideo.from_pretrained("hunyuanvideo-community/HunyuanVideo", subfolder='vae', torch_dtype=torch.float16).cpu()
+# Save the default configuration to a file if it doesn't exist
+config_file = "model_config.json"
+if not os.path.exists(config_file):
+    with open(config_file, "w") as f:
+        json.dump(default_config, f, indent=4)
 
-feature_extractor = SiglipImageProcessor.from_pretrained("lllyasviel/flux_redux_bfl", subfolder='feature_extractor')
-image_encoder = SiglipVisionModel.from_pretrained("lllyasviel/flux_redux_bfl", subfolder='image_encoder', torch_dtype=torch.float16).cpu()
+# Load the configuration from the file
+with open(config_file, "r") as f:
+    config = json.load(f)
 
-transformer = HunyuanVideoTransformer3DModelPacked.from_pretrained('lllyasviel/FramePackI2V_HY', torch_dtype=torch.bfloat16).cpu()
+# Load models using the configuration
+text_encoder = LlamaModel.from_pretrained(
+    config["text_encoder"]["model_name"],
+    subfolder=config["text_encoder"]["subfolder"],
+    torch_dtype=getattr(torch, config["text_encoder"]["torch_dtype"])
+).cpu()
+
+text_encoder_2 = CLIPTextModel.from_pretrained(
+    config["text_encoder_2"]["model_name"],
+    subfolder=config["text_encoder_2"]["subfolder"],
+    torch_dtype=getattr(torch, config["text_encoder_2"]["torch_dtype"])
+).cpu()
+
+tokenizer = LlamaTokenizerFast.from_pretrained(
+    config["tokenizer"]["model_name"],
+    subfolder=config["tokenizer"]["subfolder"]
+)
+
+tokenizer_2 = CLIPTokenizer.from_pretrained(
+    config["tokenizer_2"]["model_name"],
+    subfolder=config["tokenizer_2"]["subfolder"]
+)
+
+vae = AutoencoderKLHunyuanVideo.from_pretrained(
+    config["vae"]["model_name"],
+    subfolder=config["vae"]["subfolder"],
+    torch_dtype=getattr(torch, config["vae"]["torch_dtype"])
+).cpu()
+
+feature_extractor = SiglipImageProcessor.from_pretrained(
+    config["feature_extractor"]["model_name"],
+    subfolder=config["feature_extractor"]["subfolder"]
+)
+
+image_encoder = SiglipVisionModel.from_pretrained(
+    config["image_encoder"]["model_name"],
+    subfolder=config["image_encoder"]["subfolder"],
+    torch_dtype=getattr(torch, config["image_encoder"]["torch_dtype"])
+).cpu()
+
+transformer = HunyuanVideoTransformer3DModelPacked.from_pretrained(
+    config["transformer"]["model_name"],
+    torch_dtype=getattr(torch, config["transformer"]["torch_dtype"])
+).cpu()
 
 vae.eval()
 text_encoder.eval()
