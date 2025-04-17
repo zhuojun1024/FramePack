@@ -8,7 +8,7 @@ Official implementation and desktop software for ["Packing Input Frame Context i
 
 Links: [**Paper**](https://lllyasviel.github.io/frame_pack_gitpage/pack.pdf), [**Project Page**](https://lllyasviel.github.io/frame_pack_gitpage/)
 
-FramePack is a next-frame (next-frame-section) prediction model that generates videos progressively. 
+FramePack is a next-frame (next-frame-section) prediction neural network structure that generates videos progressively. 
 
 FramePack compresses input contexts to a constant length so that the generation workload is invariant to video length.
 
