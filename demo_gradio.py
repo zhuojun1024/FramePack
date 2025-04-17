@@ -17,6 +17,7 @@ from PIL import Image
 from diffusers import AutoencoderKLHunyuanVideo
 from transformers import LlamaModel, CLIPTextModel, LlamaTokenizerFast, CLIPTokenizer
 from diffusers_helper.hunyuan import encode_prompt_conds, vae_decode, vae_encode, vae_decode_fake
+from diffusers_helper.load_lora import load_lora
 from diffusers_helper.utils import save_bcthw_as_mp4, crop_or_pad_yield_mask, soft_append_bcthw, resize_and_center_crop, state_dict_weighted_merge, state_dict_offset_merge, generate_timestamp
 from diffusers_helper.models.hunyuan_video_packed import HunyuanVideoTransformer3DModelPacked
 from diffusers_helper.pipelines.k_diffusion_hunyuan import sample_hunyuan
@@ -148,7 +149,6 @@ if not high_vram:
     vae.enable_tiling()
 
 transformer.high_quality_fp32_output_for_inference = True
-print('transformer.high_quality_fp32_output_for_inference = True')
 
 transformer.to(dtype=torch.bfloat16)
 vae.to(dtype=torch.float16)
@@ -161,6 +161,9 @@ text_encoder.requires_grad_(False)
 text_encoder_2.requires_grad_(False)
 image_encoder.requires_grad_(False)
 transformer.requires_grad_(False)
+
+if config["lora"]:
+    transformer = load_lora(transformer,  config["lora"]["path"], config["lora"]["name"])
 
 if not high_vram:
     # DynamicSwapInstaller is same as huggingface's enable_sequential_offload but 3x faster
