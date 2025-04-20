@@ -31,9 +31,12 @@ from diffusers_helper.bucket_tools import find_nearest_bucket
 parser = argparse.ArgumentParser()
 parser.add_argument('--share', action='store_true')
 parser.add_argument("--server", type=str, default='0.0.0.0')
-parser.add_argument("--port", type=int, default=7860)
+parser.add_argument("--port", type=int, required=False)
+parser.add_argument("--inbrowser", action='store_true')
 args = parser.parse_args()
 
+# for win desktop probably use --server 127.0.0.1 --inbrowser
+# For linux server probably use --server 127.0.0.1 or do not use any cmd flags
 print(args)
 
 free_mem_gb = get_cuda_free_memory_gb(gpu)
@@ -96,7 +99,7 @@ os.makedirs(outputs_folder, exist_ok=True)
 
 
 @torch.no_grad()
-def worker(input_image, end_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache):
+def worker(input_image, end_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache, mp4_crf):
     total_latent_sections = (total_second_length * 30) / (latent_window_size * 4)
     total_latent_sections = int(max(round(total_latent_sections), 1))
 
@@ -315,7 +318,7 @@ def worker(input_image, end_image, prompt, n_prompt, seed, total_second_length, 
 
             output_filename = os.path.join(outputs_folder, f'{job_id}_{total_generated_latent_frames}.mp4')
 
-            save_bcthw_as_mp4(history_pixels, output_filename, fps=30)
+            save_bcthw_as_mp4(history_pixels, output_filename, fps=30, crf=mp4_crf)
 
             print(f'Decoded. Current latent shape {real_history_latents.shape}; pixel shape {history_pixels.shape}')
 
@@ -335,7 +338,7 @@ def worker(input_image, end_image, prompt, n_prompt, seed, total_second_length, 
     return
 
 
-def process(input_image, end_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache):
+def process(input_image, end_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache, crf=mp4_crf):
     global stream
     assert input_image is not None, 'No input image!'
 
@@ -343,7 +346,7 @@ def process(input_image, end_image, prompt, n_prompt, seed, total_second_length,
 
     stream = AsyncStream()
 
-    async_run(worker, input_image, end_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache)
+    async_run(worker, input_image, end_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache, crf=mp4_crf)
 
     output_filename = None
 
@@ -409,6 +412,8 @@ with block:
                 rs = gr.Slider(label="CFG Re-Scale", minimum=0.0, maximum=1.0, value=0.0, step=0.01, visible=False)  # Should not change
 
                 gpu_memory_preservation = gr.Slider(label="GPU Inference Preserved Memory (GB) (larger means slower)", minimum=6, maximum=128, value=6, step=0.1, info="Set this number to a larger value if you encounter OOM. Larger value causes slower speed.")
+                
+                mp4_crf = gr.Slider(label="MP4 Compression", minimum=0, maximum=100, value=16, step=1, info="Lower means better quality. 0 is uncompressed. Change to 16 if you get black outputs. ")
 
         with gr.Column():
             preview_image = gr.Image(label="Next Latents", height=200, visible=False)
@@ -416,7 +421,10 @@ with block:
             gr.Markdown('When using only a start frame, the ending actions will be generated before the starting actions due to the inverted sampling. If using both start and end frames, the model will try to create a smooth transition between them.')
             progress_desc = gr.Markdown('', elem_classes='no-generating-animation')
             progress_bar = gr.HTML('', elem_classes='no-generating-animation')
-    ips = [input_image, end_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache]
+
+    gr.HTML('<div style="text-align:center; margin-top:20px;">Share your results and find ideas at the <a href="https://x.com/search?q=framepack&f=live" target="_blank">FramePack Twitter (X) thread</a></div>')
+    
+    ips = [input_image, end_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache, mp4_crf]
     start_button.click(fn=process, inputs=ips, outputs=[result_video, preview_image, progress_desc, progress_bar, start_button, end_button])
     end_button.click(fn=end_process)
 
@@ -425,4 +433,5 @@ block.launch(
     server_name=args.server,
     server_port=args.port,
     share=args.share,
+    inbrowser=args.inbrowser,
 )
