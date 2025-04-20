@@ -35,6 +35,7 @@ parser.add_argument("--server", type=str, default='0.0.0.0')
 parser.add_argument("--port", type=int, required=False)
 parser.add_argument("--inbrowser", action='store_true')
 parser.add_argument("--lora", type=str, default=None, help="Lora path")
+parser.add_argument("--lora_is_diffusers", action='store_true', help="Lora is diffusers format")
 args = parser.parse_args()
 
 # for win desktop probably use --server 127.0.0.1 --inbrowser
@@ -86,7 +87,8 @@ transformer.requires_grad_(False)
 if args.lora:
     lora = args.lora
     lora_path, lora_name = os.path.split(lora)
-    transformer = load_lora(transformer, lora_path, lora_name)
+    print("Loading lora")
+    transformer = load_lora(transformer, lora_path, lora_name, args.lora_is_diffusers)
 
 if not high_vram:
     # DynamicSwapInstaller is same as huggingface's enable_sequential_offload but 3x faster
