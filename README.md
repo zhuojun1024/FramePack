@@ -31,6 +31,10 @@ FramePack can be trained with a much larger batch size, similar to the batch siz
 
 **Video diffusion, but feels like image diffusion.**
 
+# Notes
+
+Note that this GitHub repository is the only official FramePack website. We do not have any web services. All other websites are spam and fake, including but not limited to `framepack.co`, `frame_pack.co`, `framepack.net`, `frame_pack.net`, `framepack.ai`, `frame_pack.ai`, `framepack.pro`, `frame_pack.pro`, `framepack.cc`, `frame_pack.cc`,`framepackai.co`, `frame_pack_ai.co`, `framepackai.net`, `frame_pack_ai.net`, `framepackai.pro`, `frame_pack_ai.pro`, `framepackai.cc`, `frame_pack_ai.cc`, and so on. Again, they are all spam and fake. **Do not pay money or download files from any of those websites.**
+
 # Requirements
 
 Note that this repo is a functional desktop software with minimal standalone high-quality sampling system and memory management.
@@ -53,7 +57,15 @@ In any case, you will directly see the generated frames since it is next-frame(-
 
 **Windows**:
 
-One-click-package will be released soon. Please come back tomorrow.
+[>>> Click Here to Download One-Click Package (CUDA 12.6 + Pytorch 2.6) <<<](https://github.com/lllyasviel/FramePack/releases/download/windows/framepack_cu126_torch26.7z)
+
+After you download, you uncompress, use `update.bat` to update, and use `run.bat` to run.
+
+Note that running `update.bat` is important, otherwise you may be using a previous version with potential bugs unfixed.
+
+![image](https://github.com/lllyasviel/stable-diffusion-webui-forge/assets/19834515/c49bd60d-82bd-4086-9859-88d472582b94)
+
+Note that the models will be downloaded automatically. You will download more than 30GB from HuggingFace.
 
 **Linux**:
 
