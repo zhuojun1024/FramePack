@@ -18,6 +18,10 @@ FramePack can be trained with a much larger batch size, similar to the batch siz
 
 **Video diffusion, but feels like image diffusion.**
 
+# Notes
+
+Note that this GitHub repository is the only official FramePack website. We do not have any web services. All other websites are spam and fake, including but not limited to `framepack.co`, `frame_pack.co`, `framepack.net`, `frame_pack.net`, `framepack.ai`, `frame_pack.ai`, `framepack.pro`, `frame_pack.pro`, `framepack.cc`, `frame_pack.cc`, and so on. Again, they are all spam and fake. **Do not pay money or download files from any of those websites.**
+
 # Requirements
 
 Note that this repo is a functional desktop software with minimal standalone high-quality sampling system and memory management.
