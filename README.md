@@ -1,16 +1,3 @@
-Fork info:
-
-Load model configs from a file: "model_config.json"
-
-Specify a lora to load by adding (experimental):
-
-"lora": {
-    "path": "path to lora",
-    "name": "pytorch_lora_weights.safetensors" <- can be anything
-}
-
-- - - 
-
 <p align="center">
     <img src="https://github.com/user-attachments/assets/2cc030b4-87e1-40a0-b5bf-1b7d6b62820b" width="300">
 </p>
@@ -483,6 +470,12 @@ You can also write prompts yourself. Concise prompts are usually preferred, for 
 *The man dances powerfully, with clear movements, full of energy.*
 
 and so on.
+
+# LoRA
+
+Experimental LoRA support. Retrain of LoRA is necessary. 
+
+Launch with the '--lora path_to_your_lora' argument.
 
 # Cite
 
