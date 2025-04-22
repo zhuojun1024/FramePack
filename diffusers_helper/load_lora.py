@@ -3,7 +3,7 @@ from typing import Optional
 from diffusers.loaders.lora_pipeline import _fetch_state_dict
 from diffusers.loaders.lora_conversion_utils import _convert_hunyuan_video_lora_to_diffusers
 
-def load_lora(transformer, lora_path: Path, weight_name: Optional[str] = "pytorch_lora_weights.safetensors", diffuser_lora: bool = False):
+def load_lora(transformer, lora_path: Path, weight_name: Optional[str] = "pytorch_lora_weights.safetensors"):
     """
     Load LoRA weights into the transformer model.
 
@@ -29,9 +29,7 @@ def load_lora(transformer, lora_path: Path, weight_name: Optional[str] = "pytorc
     None)
 
 
-    if not diffuser_lora:
-        print("Not a diffusers lora, assuming Hunyuan.")
-        state_dict = _convert_hunyuan_video_lora_to_diffusers(state_dict)
+    state_dict = _convert_hunyuan_video_lora_to_diffusers(state_dict)
     
     transformer.load_lora_adapter(state_dict, network_alphas=None)
     print("LoRA weights loaded successfully.")
