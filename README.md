@@ -1,9 +1,3 @@
-Fork info:
-
-To use lora, launch with the '--lora path_to_lora' argument 
-
-(I've replaced the model_config.json to avoid confusion and simplify usage)
-
 <p align="center">
     <img src="https://github.com/user-attachments/assets/2cc030b4-87e1-40a0-b5bf-1b7d6b62820b" width="300">
 </p>
