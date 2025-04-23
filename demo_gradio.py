@@ -145,11 +145,16 @@ def worker(input_image, prompt, n_prompt, seed, total_second_length, latent_wind
 
         stream.output_queue.push(('progress', (None, '', make_progress_bar_html(0, 'Image processing ...'))))
 
-        H, W, C = input_image.shape
-        height, width = find_nearest_bucket(H, W, resolution=640)
-        input_image_np = resize_and_center_crop(input_image, target_width=width, target_height=height)
 
-        Image.fromarray(input_image_np).save(os.path.join(outputs_folder, f'{job_id}.png'))
+        if input_image is None:
+            input_image = np.zeros((resolution, resolution, 3), dtype=np.uint8)
+            height = width = resolution
+            input_image_np = np.array(input_image)
+        else: 
+            H, W, C = input_image.shape
+            height, width = find_nearest_bucket(H, W, resolution=resolution)
+            input_image_np = resize_and_center_crop(input_image, target_width=width, target_height=height)
+            Image.fromarray(input_image_np).save(os.path.join(outputs_folder, f'{job_id}.png'))
 
         input_image_pt = torch.from_numpy(input_image_np).float() / 127.5 - 1
         input_image_pt = input_image_pt.permute(2, 0, 1)[None, :, None]
@@ -325,7 +330,6 @@ def worker(input_image, prompt, n_prompt, seed, total_second_length, latent_wind
 
 def process(input_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache, mp4_crf):
     global stream
-    assert input_image is not None, 'No input image!'
 
     yield None, None, '', '', gr.update(interactive=False), gr.update(interactive=True)
 
