@@ -34,8 +34,6 @@ parser.add_argument('--share', action='store_true')
 parser.add_argument("--server", type=str, default='0.0.0.0')
 parser.add_argument("--port", type=int, required=False)
 parser.add_argument("--inbrowser", action='store_true')
-parser.add_argument("--lora", type=str, default=None, help="Lora path")
-parser.add_argument("--lora_is_diffusers", action='store_true', help="Lora is diffusers format")
 args = parser.parse_args()
 
 # for win desktop probably use --server 127.0.0.1 --inbrowser
@@ -84,12 +82,6 @@ text_encoder_2.requires_grad_(False)
 image_encoder.requires_grad_(False)
 transformer.requires_grad_(False)
 
-if args.lora:
-    lora = args.lora
-    lora_path, lora_name = os.path.split(lora)
-    print("Loading lora")
-    transformer = load_lora(transformer, lora_path, lora_name, args.lora_is_diffusers)
-
 if not high_vram:
     # DynamicSwapInstaller is same as huggingface's enable_sequential_offload but 3x faster
     DynamicSwapInstaller.install_model(transformer, device=gpu)
@@ -108,7 +100,7 @@ os.makedirs(outputs_folder, exist_ok=True)
 
 
 @torch.no_grad()
-def worker(input_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache, mp4_crf):
+def worker(input_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache, mp4_crf, resolution):
     total_latent_sections = (total_second_length * 30) / (latent_window_size * 4)
     total_latent_sections = int(max(round(total_latent_sections), 1))
 
@@ -328,14 +320,14 @@ def worker(input_image, prompt, n_prompt, seed, total_second_length, latent_wind
     return
 
 
-def process(input_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache, mp4_crf):
+def process(input_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache, mp4_crf, resolution):
     global stream
 
     yield None, None, '', '', gr.update(interactive=False), gr.update(interactive=True)
 
     stream = AsyncStream()
 
-    async_run(worker, input_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache, mp4_crf)
+    async_run(worker, input_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache, mp4_crf, resolution)
 
     output_filename = None
 
@@ -372,7 +364,8 @@ with block:
     gr.Markdown('# FramePack')
     with gr.Row():
         with gr.Column():
-            input_image = gr.Image(sources='upload', type="numpy", label="Image", height=320)
+            input_image = gr.Image(sources='upload', type="numpy", label="Image", height=320)            
+            resolution = gr.Slider(label="Resolution", minimum=240, maximum=720, value=640, step=16)
             prompt = gr.Textbox(label="Prompt", value='')
             example_quick_prompts = gr.Dataset(samples=quick_prompts, label='Quick List', samples_per_page=1000, components=[prompt])
             example_quick_prompts.click(lambda x: x[0], inputs=[example_quick_prompts], outputs=prompt, show_progress=False, queue=False)

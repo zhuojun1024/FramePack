@@ -1,9 +1,3 @@
-Fork info:
-
-To use lora, launch with the '--lora path_to_lora' argument 
-
-(I've replaced the model_config.json to avoid confusion and simplify usage)
-
 <p align="center">
     <img src="https://github.com/user-attachments/assets/2cc030b4-87e1-40a0-b5bf-1b7d6b62820b" width="300">
 </p>
@@ -476,12 +470,6 @@ You can also write prompts yourself. Concise prompts are usually preferred, for 
 *The man dances powerfully, with clear movements, full of energy.*
 
 and so on.
-
-# LoRA
-
-Experimental LoRA support. Retrain of LoRA is necessary. 
-
-Launch with the '--lora path_to_your_lora' argument.
 
 # Cite
 
