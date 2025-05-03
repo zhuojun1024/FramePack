@@ -147,10 +147,6 @@ def worker(input_image, end_image, prompt, n_prompt, seed, total_second_length, 
         # Processing input image (start frame)
         stream.output_queue.push(('progress', (None, '', make_progress_bar_html(0, 'Processing start frame ...'))))
 
-        H, W, C = input_image.shape
-        height, width = find_nearest_bucket(H, W, resolution=640)
-        input_image_np = resize_and_center_crop(input_image, target_width=width, target_height=height)
-
         if input_image is None:
             input_image = np.zeros((resolution, resolution, 3), dtype=np.uint8)
             height = width = resolution
@@ -360,7 +356,6 @@ def worker(input_image, end_image, prompt, n_prompt, seed, total_second_length, 
 
 def process(input_image, end_image, prompt, n_prompt, seed, total_second_length, latent_window_size, steps, cfg, gs, rs, gpu_memory_preservation, use_teacache, mp4_crf, resolution, *lora_values):
     global stream
-    assert input_image is not None, 'No input image!'
 
     yield None, None, '', '', gr.update(interactive=False), gr.update(interactive=True)
 
